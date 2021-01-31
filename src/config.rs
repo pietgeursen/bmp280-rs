@@ -20,6 +20,52 @@ impl Config {
             iir_filter: IIRFilterCoefficient::Four,
         }
     }
+
+    pub fn handheld_device_dynamic() -> Config {
+        Config {
+            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            pressure_oversampling: PressureOverSampling::Four,
+            temperature_oversampling: TemperatureOverSampling::One,
+            iir_filter: IIRFilterCoefficient::Sixteen,
+        }
+    }
+
+    pub fn weather_monitoring() -> Config {
+        Config {
+            mode: MeasurementMode::Forced,
+            pressure_oversampling: PressureOverSampling::One,
+            temperature_oversampling: TemperatureOverSampling::One,
+            iir_filter: IIRFilterCoefficient::Off,
+        }
+    }
+
+    pub fn elevator_floor_monitoring() -> Config {
+        Config {
+            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::OneTwentyFive),
+            pressure_oversampling: PressureOverSampling::Four,
+            temperature_oversampling: TemperatureOverSampling::One,
+            iir_filter: IIRFilterCoefficient::Four,
+        }
+    }
+
+    pub fn drop_detection() -> Config {
+        Config {
+            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            pressure_oversampling: PressureOverSampling::Two,
+            temperature_oversampling: TemperatureOverSampling::One,
+            iir_filter: IIRFilterCoefficient::Sixteen,
+        }
+    }
+
+    pub fn indoor_navigation() -> Config {
+        Config {
+            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            pressure_oversampling: PressureOverSampling::Sixteen,
+            temperature_oversampling: TemperatureOverSampling::Two,
+            iir_filter: IIRFilterCoefficient::Sixteen,
+        }
+    }
+
     pub fn config_byte(&self) -> u8 {
         let sb_bytes = match self.mode {
             MeasurementMode::Normal(sb) => sb.bits(),
