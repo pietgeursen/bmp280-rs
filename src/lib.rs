@@ -9,13 +9,8 @@ use snafu::ensure;
 pub mod config;
 pub mod error;
 pub mod i2c_address;
-pub mod iir_filter_coefficient;
 mod internal;
-pub mod measurement_mode;
-pub mod measurement_standby_time_millis;
-pub mod pressure_over_sampling;
 pub mod register;
-pub mod temperature_over_sampling;
 
 pub use config::*;
 pub use error::*;

@@ -1,5 +1,5 @@
 #[derive(Copy, Clone)]
-pub enum PressureOverSampling {
+pub enum PressureOversampling {
     MeasurementSkipped = 0b00000,
     One = 0b00100,
     Two = 0b01000,
@@ -8,7 +8,7 @@ pub enum PressureOverSampling {
     Sixteen = 0b11100,
 }
 
-impl PressureOverSampling {
+impl PressureOversampling {
     pub fn bits(&self) -> u8 {
         *self as u8
     }

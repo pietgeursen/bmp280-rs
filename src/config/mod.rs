@@ -1,13 +1,19 @@
-use crate::iir_filter_coefficient::IIRFilterCoefficient;
-use crate::measurement_mode::MeasurementMode;
-use crate::measurement_standby_time_millis::MeasurementStandbyTimeMillis;
-use crate::pressure_over_sampling::PressureOverSampling;
-use crate::temperature_over_sampling::TemperatureOverSampling;
+pub mod iir_filter_coefficient;
+pub mod measurement_mode;
+pub mod measurement_standby_time_millis;
+pub mod pressure_oversampling;
+pub mod temperature_oversampling;
+
+pub use iir_filter_coefficient::IIRFilterCoefficient;
+pub use measurement_mode::MeasurementMode;
+pub use measurement_standby_time_millis::MeasurementStandbyTimeMillis;
+pub use pressure_oversampling::PressureOversampling;
+pub use temperature_oversampling::TemperatureOversampling;
 
 pub struct Config {
     pub mode: MeasurementMode,
-    pub pressure_oversampling: PressureOverSampling,
-    pub temperature_oversampling: TemperatureOverSampling,
+    pub pressure_oversampling: PressureOversampling,
+    pub temperature_oversampling: TemperatureOversampling,
     pub iir_filter: IIRFilterCoefficient,
 }
 
@@ -15,8 +21,8 @@ impl Config {
     pub fn handheld_device_lowpower() -> Config {
         Config {
             mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::SixtyTwoPointFive),
-            pressure_oversampling: PressureOverSampling::Sixteen,
-            temperature_oversampling: TemperatureOverSampling::Two,
+            pressure_oversampling: PressureOversampling::Sixteen,
+            temperature_oversampling: TemperatureOversampling::Two,
             iir_filter: IIRFilterCoefficient::Four,
         }
     }
@@ -24,8 +30,8 @@ impl Config {
     pub fn handheld_device_dynamic() -> Config {
         Config {
             mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
-            pressure_oversampling: PressureOverSampling::Four,
-            temperature_oversampling: TemperatureOverSampling::One,
+            pressure_oversampling: PressureOversampling::Four,
+            temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
@@ -33,8 +39,8 @@ impl Config {
     pub fn weather_monitoring() -> Config {
         Config {
             mode: MeasurementMode::Forced,
-            pressure_oversampling: PressureOverSampling::One,
-            temperature_oversampling: TemperatureOverSampling::One,
+            pressure_oversampling: PressureOversampling::One,
+            temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Off,
         }
     }
@@ -42,8 +48,8 @@ impl Config {
     pub fn elevator_floor_monitoring() -> Config {
         Config {
             mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::OneTwentyFive),
-            pressure_oversampling: PressureOverSampling::Four,
-            temperature_oversampling: TemperatureOverSampling::One,
+            pressure_oversampling: PressureOversampling::Four,
+            temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Four,
         }
     }
@@ -51,8 +57,8 @@ impl Config {
     pub fn drop_detection() -> Config {
         Config {
             mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
-            pressure_oversampling: PressureOverSampling::Two,
-            temperature_oversampling: TemperatureOverSampling::One,
+            pressure_oversampling: PressureOversampling::Two,
+            temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
@@ -60,8 +66,8 @@ impl Config {
     pub fn indoor_navigation() -> Config {
         Config {
             mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
-            pressure_oversampling: PressureOverSampling::Sixteen,
-            temperature_oversampling: TemperatureOverSampling::Two,
+            pressure_oversampling: PressureOversampling::Sixteen,
+            temperature_oversampling: TemperatureOversampling::Two,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
