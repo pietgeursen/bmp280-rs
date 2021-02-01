@@ -1,0 +1,9 @@
+(function() {var implementors = {};
+implementors["bmp280"] = [{"text":"impl Debug for Error","synthetic":false,"types":[]}];
+implementors["embedded_hal"] = [{"text":"impl Debug for Direction","synthetic":false,"types":[]}];
+implementors["nb"] = [{"text":"impl&lt;E&gt; Debug for Error&lt;E&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;E: Debug,&nbsp;</span>","synthetic":false,"types":[]}];
+implementors["proc_macro2"] = [{"text":"impl Debug for TokenStream","synthetic":false,"types":[]},{"text":"impl Debug for LexError","synthetic":false,"types":[]},{"text":"impl Debug for Span","synthetic":false,"types":[]},{"text":"impl Debug for TokenTree","synthetic":false,"types":[]},{"text":"impl Debug for Delimiter","synthetic":false,"types":[]},{"text":"impl Debug for Group","synthetic":false,"types":[]},{"text":"impl Debug for Spacing","synthetic":false,"types":[]},{"text":"impl Debug for Punct","synthetic":false,"types":[]},{"text":"impl Debug for Ident","synthetic":false,"types":[]},{"text":"impl Debug for Literal","synthetic":false,"types":[]},{"text":"impl Debug for IntoIter","synthetic":false,"types":[]}];
+implementors["snafu"] = [{"text":"impl Debug for Backtrace","synthetic":false,"types":[]}];
+implementors["syn"] = [{"text":"impl&lt;'a&gt; Debug for ParseBuffer&lt;'a&gt;","synthetic":false,"types":[]},{"text":"impl Debug for Error","synthetic":false,"types":[]}];
+implementors["void"] = [{"text":"impl Debug for Void","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
