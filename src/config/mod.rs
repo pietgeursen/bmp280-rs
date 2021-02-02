@@ -79,7 +79,7 @@ impl Config {
     }
 
     pub(crate) fn config_byte(&self) -> u8 {
-        let sb_bytes = match self.measurement_standby_time_millis{
+        let sb_bytes = match self.measurement_standby_time_millis {
             Some(sb) => sb.bits(),
             _ => 0x00000000,
         };

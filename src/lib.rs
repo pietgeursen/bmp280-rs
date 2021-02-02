@@ -80,11 +80,10 @@ where
         )
     }
 
-    fn _into_normal_mode(
-        mut self
-    ) -> Result<BMP280<I2C, ModeNormal>, Error> {
-
-        let measurement_standby_time_millis = self.config.measurement_standby_time_millis
+    fn _into_normal_mode(mut self) -> Result<BMP280<I2C, ModeNormal>, Error> {
+        let measurement_standby_time_millis = self
+            .config
+            .measurement_standby_time_millis
             .context(NormalModeNeedsMeasStandbyTime)?;
 
         Self::_configure(
@@ -92,6 +91,24 @@ where
             self.i2c_address,
             &self.config,
             MeasurementMode::Normal(measurement_standby_time_millis),
+        )?;
+
+        Ok(BMP280 {
+            i2c: self.i2c,
+            i2c_address: self.i2c_address,
+            temperature_calibration_data: self.temperature_calibration_data,
+            pressure_calibration_data: self.pressure_calibration_data,
+            t_fine: self.t_fine,
+            config: self.config,
+            mode: PhantomData,
+        })
+    }
+    fn _into_sleep_mode(mut self) -> Result<BMP280<I2C, ModeSleep>, Error> {
+        Self::_configure(
+            &mut self.i2c,
+            self.i2c_address,
+            &self.config,
+            MeasurementMode::Sleep,
         )?;
 
         Ok(BMP280 {
@@ -299,6 +316,11 @@ where
     I2C: WriteRead<Error = E> + Write<Error = E>,
     E: Debug,
 {
+    /// Change into sleep mode
+    pub fn into_sleep_mode(self) -> Result<BMP280<I2C, ModeSleep>, Error> {
+        Self::_into_sleep_mode(self)
+    }
+
     /// Read the uncompensated pressure data. 20 bit value.
     pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
         Self::_read_raw_pressure(self)
@@ -355,9 +377,7 @@ where
     /// Convert into normal mode.
     ///
     /// Normal mode continuously samples.
-    pub fn into_normal_mode(
-        self
-    ) -> Result<BMP280<I2C, ModeNormal>, Error> {
+    pub fn into_normal_mode(self) -> Result<BMP280<I2C, ModeNormal>, Error> {
         Self::_into_normal_mode(self)
     }
 
