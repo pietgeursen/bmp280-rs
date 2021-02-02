@@ -11,70 +11,76 @@ pub use pressure_oversampling::PressureOversampling;
 pub use temperature_oversampling::TemperatureOversampling;
 
 pub struct Config {
-    pub mode: MeasurementMode,
+    pub measurement_standby_time_millis: Option<MeasurementStandbyTimeMillis>,
     pub pressure_oversampling: PressureOversampling,
     pub temperature_oversampling: TemperatureOversampling,
     pub iir_filter: IIRFilterCoefficient,
 }
 
 impl Config {
+    /// Use in NormalMode
     pub fn handheld_device_lowpower() -> Config {
         Config {
-            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::SixtyTwoPointFive),
+            measurement_standby_time_millis: Some(MeasurementStandbyTimeMillis::SixtyTwoPointFive),
             pressure_oversampling: PressureOversampling::Sixteen,
             temperature_oversampling: TemperatureOversampling::Two,
             iir_filter: IIRFilterCoefficient::Four,
         }
     }
 
+    /// Use in NormalMode
     pub fn handheld_device_dynamic() -> Config {
         Config {
-            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            measurement_standby_time_millis: Some(MeasurementStandbyTimeMillis::ZeroPointFive),
             pressure_oversampling: PressureOversampling::Four,
             temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
 
+    /// Use in sleep mode with the [trigger_measurement] methods.
     pub fn weather_monitoring() -> Config {
         Config {
-            mode: MeasurementMode::Forced,
+            measurement_standby_time_millis: None,
             pressure_oversampling: PressureOversampling::One,
             temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Off,
         }
     }
 
+    /// Use in NormalMode
     pub fn elevator_floor_monitoring() -> Config {
         Config {
-            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::OneTwentyFive),
+            measurement_standby_time_millis: Some(MeasurementStandbyTimeMillis::OneTwentyFive),
             pressure_oversampling: PressureOversampling::Four,
             temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Four,
         }
     }
 
+    /// Use in NormalMode
     pub fn drop_detection() -> Config {
         Config {
-            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            measurement_standby_time_millis: Some(MeasurementStandbyTimeMillis::ZeroPointFive),
             pressure_oversampling: PressureOversampling::Two,
             temperature_oversampling: TemperatureOversampling::One,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
 
+    /// Use in NormalMode
     pub fn indoor_navigation() -> Config {
         Config {
-            mode: MeasurementMode::Normal(MeasurementStandbyTimeMillis::ZeroPointFive),
+            measurement_standby_time_millis: Some(MeasurementStandbyTimeMillis::ZeroPointFive),
             pressure_oversampling: PressureOversampling::Sixteen,
             temperature_oversampling: TemperatureOversampling::Two,
             iir_filter: IIRFilterCoefficient::Sixteen,
         }
     }
 
-    pub fn config_byte(&self) -> u8 {
-        let sb_bytes = match self.mode {
-            MeasurementMode::Normal(sb) => sb.bits(),
+    pub(crate) fn config_byte(&self) -> u8 {
+        let sb_bytes = match self.measurement_standby_time_millis{
+            Some(sb) => sb.bits(),
             _ => 0x00000000,
         };
         let filter_bytes = self.iir_filter.bits();
@@ -82,10 +88,10 @@ impl Config {
         sb_bytes | filter_bytes
     }
 
-    pub fn ctrl_meas_byte(&self) -> u8 {
+    pub(crate) fn ctrl_meas_byte(&self, measurement_mode: MeasurementMode) -> u8 {
         let sample_rate_temp_bytes = self.temperature_oversampling.bits();
         let sample_rate_press_bytes = self.pressure_oversampling.bits();
-        let mode_bytes = self.mode.bits();
+        let mode_bytes = measurement_mode.bits();
 
         sample_rate_press_bytes | sample_rate_temp_bytes | mode_bytes
     }

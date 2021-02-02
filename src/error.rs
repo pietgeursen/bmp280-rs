@@ -9,4 +9,5 @@ pub enum Error {
     WriteControlMeas,
     WriteRegister,
     ReadRegister,
+    NormalModeNeedsMeasStandbyTime,
 }

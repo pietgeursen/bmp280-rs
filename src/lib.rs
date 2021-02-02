@@ -2,9 +2,10 @@
 #![forbid(unsafe_code)]
 
 use core::fmt::Debug;
+use core::marker::PhantomData;
 use embedded_hal as hal;
 use hal::blocking::i2c::{Write, WriteRead};
-use snafu::ensure;
+use snafu::{ensure, OptionExt};
 
 pub mod config;
 pub mod error;
@@ -22,74 +23,105 @@ pub use i2c_address::I2CAddress;
 use pressure_calibration_data::PressureCalibrationData;
 use temperature_calibration_data::TemperatureCalibrationData;
 
-pub struct BMP280<I2C> {
+pub struct BMP280<I2C, Mode> {
     i2c: I2C,
     i2c_address: u8,
 
     temperature_calibration_data: TemperatureCalibrationData,
     pressure_calibration_data: PressureCalibrationData,
     t_fine: i32,
+    config: Config,
+    mode: PhantomData<Mode>,
 }
 
 const DEVICE_ID: u8 = 0x58;
 
-impl<I2C, E> BMP280<I2C>
+// Magic number that must be written to the reset register to actually trigger a reset.
+const RESET_WORD: u8 = 0xB6;
+
+pub struct ModeNormal;
+pub struct ModeSleep;
+
+impl<I2C, E, Mode> BMP280<I2C, Mode>
 where
     I2C: WriteRead<Error = E> + Write<Error = E>,
     E: Debug,
 {
-    pub fn new(mut i2c: I2C, i2c_address: I2CAddress, config: Config) -> Result<Self, Error> {
-        let i2c_address = i2c_address.addr();
+    /// Reset the chip into sleep mode and reconfigure it with the current config.
+    pub fn into_reset(mut self) -> Result<BMP280<I2C, ModeSleep>, Error> {
+        self.i2c
+            .write(self.i2c_address, &[Register::Reset.addr(), RESET_WORD])
+            .map_err(|_| Error::WriteConfig)?;
 
-        ensure!(
-            DEVICE_ID == Self::get_device_id(&mut i2c, i2c_address)?,
-            IncorrectDeviceId
-        );
+        Self::_configure(
+            &mut self.i2c,
+            self.i2c_address,
+            &self.config,
+            MeasurementMode::Sleep,
+        )?;
 
-        let temperature_calibration_data =
-            Self::get_temperature_calibration_data(&mut i2c, i2c_address)?;
-        let pressure_calibration_data = Self::get_pressure_calibration_data(&mut i2c, i2c_address)?;
+        Ok(BMP280 {
+            i2c: self.i2c,
+            i2c_address: self.i2c_address,
+            temperature_calibration_data: self.temperature_calibration_data,
+            pressure_calibration_data: self.pressure_calibration_data,
+            t_fine: self.t_fine,
+            config: self.config,
+            mode: PhantomData,
+        })
+    }
 
-        i2c.write(
-            i2c_address,
-            &[Register::Config.addr(), config.config_byte()],
+    fn _trigger_forced_measurement(&mut self) -> Result<(), Error> {
+        Self::_configure(
+            &mut self.i2c,
+            self.i2c_address,
+            &self.config,
+            MeasurementMode::Forced,
         )
-        .map_err(|_| Error::WriteConfig)?;
+    }
 
-        i2c.write(
-            i2c_address,
-            &[Register::CtrlMeas.addr(), config.ctrl_meas_byte()],
-        )
-        .map_err(|_| Error::WriteControlMeas)?;
+    fn _into_normal_mode(
+        mut self
+    ) -> Result<BMP280<I2C, ModeNormal>, Error> {
 
-        let bmp280 = BMP280 {
-            i2c,
-            i2c_address,
-            temperature_calibration_data,
-            pressure_calibration_data,
-            t_fine: 0,
-        };
+        let measurement_standby_time_millis = self.config.measurement_standby_time_millis
+            .context(NormalModeNeedsMeasStandbyTime)?;
 
-        Ok(bmp280)
+        Self::_configure(
+            &mut self.i2c,
+            self.i2c_address,
+            &self.config,
+            MeasurementMode::Normal(measurement_standby_time_millis),
+        )?;
+
+        Ok(BMP280 {
+            i2c: self.i2c,
+            i2c_address: self.i2c_address,
+            temperature_calibration_data: self.temperature_calibration_data,
+            pressure_calibration_data: self.pressure_calibration_data,
+            t_fine: self.t_fine,
+            config: self.config,
+            mode: PhantomData,
+        })
     }
 
     /// Read the uncompensated temperature data. 20 bit value.
-    pub fn read_raw_temperature(&mut self) -> Result<u32, Error> {
+    fn _read_raw_temperature(&mut self) -> Result<u32, Error> {
         let bytes =
             Self::write_read_register_u32(&mut self.i2c, self.i2c_address, Register::TempMSB)?;
         Ok(bytes >> 4)
     }
 
     /// Read the uncompensated pressure data. 20 bit value.
-    pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
+    fn _read_raw_pressure(&mut self) -> Result<u32, Error> {
         let bytes =
             Self::write_read_register_u32(&mut self.i2c, self.i2c_address, Register::PressMSB)?;
         Ok(bytes >> 4)
     }
 
     /// Read the compensated temperature.
-    pub fn read_temperature(&mut self) -> Result<i32, Error> {
-        let raw_temp = self.read_raw_temperature()?;
+    fn _read_temperature(&mut self) -> Result<i32, Error> {
+        let raw_temp = self._read_raw_temperature()?;
 
         let (calibrated_temperature, t_fine) =
             Self::compensate_temperature(raw_temp as i32, &self.temperature_calibration_data);
@@ -101,8 +133,8 @@ where
     }
 
     /// Read the compensated pressure.
-    pub fn read_pressure(&mut self) -> Result<i32, Error> {
-        let raw_pressure = self.read_raw_pressure()?;
+    fn _read_pressure(&mut self) -> Result<i32, Error> {
+        let raw_pressure = self._read_raw_pressure()?;
 
         let compensated_pressure = Self::compensate_pressure(
             raw_pressure as i32,
@@ -111,6 +143,21 @@ where
         );
 
         Ok(compensated_pressure)
+    }
+
+    fn _configure(
+        i2c: &mut I2C,
+        i2c_address: u8,
+        config: &Config,
+        measurement_mode: MeasurementMode,
+    ) -> Result<(), Error> {
+        let config_byte = config.config_byte();
+        i2c.write(i2c_address, &[Register::Config.addr(), config_byte])
+            .map_err(|_| Error::WriteConfig)?;
+
+        let ctrl_meas_byte = config.ctrl_meas_byte(measurement_mode);
+        i2c.write(i2c_address, &[Register::CtrlMeas.addr(), ctrl_meas_byte])
+            .map_err(|_| Error::WriteControlMeas)
     }
 
     fn get_temperature_calibration_data(
@@ -247,6 +294,114 @@ where
     }
 }
 
+impl<I2C, E> BMP280<I2C, ModeNormal>
+where
+    I2C: WriteRead<Error = E> + Write<Error = E>,
+    E: Debug,
+{
+    /// Read the uncompensated pressure data. 20 bit value.
+    pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
+        Self::_read_raw_pressure(self)
+    }
+
+    /// Read the uncompensated temperature data. 20 bit value.
+    pub fn read_raw_temperature(&mut self) -> Result<u32, Error> {
+        Self::_read_raw_temperature(self)
+    }
+
+    /// Read the compensated pressure.
+    pub fn read_pressure(&mut self) -> Result<i32, Error> {
+        Self::_read_pressure(self)
+    }
+
+    /// Read the compensated temperature.
+    pub fn read_temperature(&mut self) -> Result<i32, Error> {
+        Self::_read_temperature(self)
+    }
+}
+
+impl<I2C, E> BMP280<I2C, ModeSleep>
+where
+    I2C: WriteRead<Error = E> + Write<Error = E>,
+    E: Debug,
+{
+    pub fn new(mut i2c: I2C, i2c_address: I2CAddress, config: Config) -> Result<Self, Error> {
+        let i2c_address = i2c_address.addr();
+
+        ensure!(
+            DEVICE_ID == Self::get_device_id(&mut i2c, i2c_address)?,
+            IncorrectDeviceId
+        );
+
+        let temperature_calibration_data =
+            Self::get_temperature_calibration_data(&mut i2c, i2c_address)?;
+        let pressure_calibration_data = Self::get_pressure_calibration_data(&mut i2c, i2c_address)?;
+
+        Self::_configure(&mut i2c, i2c_address, &config, MeasurementMode::Sleep)?;
+
+        let bmp280 = BMP280 {
+            i2c,
+            i2c_address,
+            temperature_calibration_data,
+            pressure_calibration_data,
+            t_fine: 0,
+            config,
+            mode: PhantomData,
+        };
+
+        Ok(bmp280)
+    }
+
+    /// Convert into normal mode.
+    ///
+    /// Normal mode continuously samples.
+    pub fn into_normal_mode(
+        self
+    ) -> Result<BMP280<I2C, ModeNormal>, Error> {
+        Self::_into_normal_mode(self)
+    }
+
+    /// Trigger a "forced" mode single measurement.
+    ///
+    /// Device internally returns to sleep mode after measurement is complete and then the pressure
+    /// / temperature can be read.
+    pub fn trigger_measurement(&mut self) -> Result<(), Error> {
+        Self::_trigger_forced_measurement(self)
+    }
+
+    /// Read the uncompensated pressure data. 20 bit value.
+    ///
+    /// Call `trigger_measurement` before calling this.
+    /// NB You need to allow time for the measurement to complete!
+    pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
+        Self::_read_raw_pressure(self)
+    }
+
+    /// Read the uncompensated temperature data. 20 bit value.
+    ///
+    /// Call `trigger_measurement` before calling this.
+    /// NB You need to allow time for the measurement to complete!
+    pub fn read_raw_temperature(&mut self) -> Result<u32, Error> {
+        Self::_read_raw_temperature(self)
+    }
+
+    /// Read the compensated pressure.
+    ///
+    /// Call `trigger_measurement` before calling this.
+    /// NB You need to allow time for the measurement to complete!
+    pub fn read_pressure(&mut self) -> Result<i32, Error> {
+        Self::_read_pressure(self)
+    }
+
+    /// Read the compensated temperature.
+    ///
+    /// Call `trigger_measurement` before calling this.
+    /// NB You need to allow time for the measurement to complete!
+    pub fn read_temperature(&mut self) -> Result<i32, Error> {
+        Self::_read_temperature(self)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -254,6 +409,7 @@ mod tests {
 
     #[test]
     fn temperature_calibration() {
+        // Values from datasheet page 23
         let ut = 519888i32;
         let temperature_calibration_data = TemperatureCalibrationData {
             t1: 27504,
@@ -261,13 +417,14 @@ mod tests {
             t3: -1000,
         };
         let (result, t_fine) =
-            BMP280::<I2CMock>::compensate_temperature(ut, &temperature_calibration_data);
+            BMP280::<I2CMock, ModeSleep>::compensate_temperature(ut, &temperature_calibration_data);
         assert_eq!(t_fine, 128422);
         assert_eq!(result, 2508);
     }
 
     #[test]
     fn pressure_calibration() {
+        // Values from datasheet page 23
         let up = 415148;
         let t_fine = 128422;
         let pressure_calibration_data = PressureCalibrationData {
@@ -281,11 +438,16 @@ mod tests {
             p8: -14600,
             p9: 6000,
         };
-        let result = BMP280::<I2CMock>::compensate_pressure(up, t_fine, &pressure_calibration_data);
+        let result = BMP280::<I2CMock, ModeSleep>::compensate_pressure(
+            up,
+            t_fine,
+            &pressure_calibration_data,
+        );
 
-        // This is the value in the datasheet but it uses floating point and we're 3 away so this
-        // I'm gonna say it's close enough
+        // This is the value in the datasheet but it uses floating point and we're 3 away.
         //assert_eq!(result, 25767236);
+
+        // I'm gonna say it's close enough
         assert_eq!(result, 25767233);
     }
 }
