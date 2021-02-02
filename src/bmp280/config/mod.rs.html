@@ -93,6 +93,12 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iir_filter_coefficient</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">measurement_mode</span>;
@@ -107,70 +113,76 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">temperature_oversampling</span>::<span class="ident">TemperatureOversampling</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Config</span> {
-    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>,
+    <span class="kw">pub</span> <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MeasurementStandbyTimeMillis</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>,
     <span class="kw">pub</span> <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>,
     <span class="kw">pub</span> <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Config</span> {
+    <span class="doccomment">/// Use in NormalMode</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handheld_device_lowpower</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">SixtyTwoPointFive</span>),
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">Some</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">SixtyTwoPointFive</span>),
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">Sixteen</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">Two</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Four</span>,
         }
     }
 
+    <span class="doccomment">/// Use in NormalMode</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handheld_device_dynamic</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">Some</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">Four</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">One</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Sixteen</span>,
         }
     }
 
+    <span class="doccomment">/// Use in sleep mode with the [trigger_measurement] methods.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weather_monitoring</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Forced</span>,
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">None</span>,
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">One</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">One</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Off</span>,
         }
     }
 
+    <span class="doccomment">/// Use in NormalMode</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">elevator_floor_monitoring</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">OneTwentyFive</span>),
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">Some</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">OneTwentyFive</span>),
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">Four</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">One</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Four</span>,
         }
     }
 
+    <span class="doccomment">/// Use in NormalMode</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drop_detection</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">Some</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">Two</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">One</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Sixteen</span>,
         }
     }
 
+    <span class="doccomment">/// Use in NormalMode</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indoor_navigation</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Config</span> {
         <span class="ident">Config</span> {
-            <span class="ident">mode</span>: <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
+            <span class="ident">measurement_standby_time_millis</span>: <span class="prelude-val">Some</span>(<span class="ident">MeasurementStandbyTimeMillis</span>::<span class="ident">ZeroPointFive</span>),
             <span class="ident">pressure_oversampling</span>: <span class="ident">PressureOversampling</span>::<span class="ident">Sixteen</span>,
             <span class="ident">temperature_oversampling</span>: <span class="ident">TemperatureOversampling</span>::<span class="ident">Two</span>,
             <span class="ident">iir_filter</span>: <span class="ident">IIRFilterCoefficient</span>::<span class="ident">Sixteen</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config_byte</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
-        <span class="kw">let</span> <span class="ident">sb_bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">MeasurementMode</span>::<span class="ident">Normal</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>.<span class="ident">bits</span>(),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">config_byte</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+        <span class="kw">let</span> <span class="ident">sb_bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">measurement_standby_time_millis</span>{
+            <span class="prelude-val">Some</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>.<span class="ident">bits</span>(),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0x00000000</span>,
         };
         <span class="kw">let</span> <span class="ident">filter_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iir_filter</span>.<span class="ident">bits</span>();
@@ -178,10 +190,10 @@
         <span class="ident">sb_bytes</span> <span class="op">|</span> <span class="ident">filter_bytes</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ctrl_meas_byte</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ctrl_meas_byte</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">measurement_mode</span>: <span class="ident">MeasurementMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
         <span class="kw">let</span> <span class="ident">sample_rate_temp_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">temperature_oversampling</span>.<span class="ident">bits</span>();
         <span class="kw">let</span> <span class="ident">sample_rate_press_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pressure_oversampling</span>.<span class="ident">bits</span>();
-        <span class="kw">let</span> <span class="ident">mode_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">bits</span>();
+        <span class="kw">let</span> <span class="ident">mode_bytes</span> <span class="op">=</span> <span class="ident">measurement_mode</span>.<span class="ident">bits</span>();
 
         <span class="ident">sample_rate_press_bytes</span> <span class="op">|</span> <span class="ident">sample_rate_temp_bytes</span> <span class="op">|</span> <span class="ident">mode_bytes</span>
     }
