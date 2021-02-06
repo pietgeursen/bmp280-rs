@@ -1,8 +1,11 @@
 [package]
-name = "bmp280"
+name = "bmp280-rs"
 version = "0.1.0"
 authors = ["Piet Geursen <pietgeursen@gmail.com>"]
 edition = "2018"
+repository = "https://github.com/pietgeursen/bmp280-rs"
+description = "I2C driver for the bmp280 termperature and air pressure sensor."
+license =  "AGPL-3.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

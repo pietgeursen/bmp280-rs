@@ -1,11 +1,12 @@
-//! bmp280
+//! bmp280-rs
 //! 
-//! i2c driver for the
-//! [bmp280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html) termperature / air pressure sensor.
+//! `no_std` compatible i2c driver for the
+//! [bmp280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html) temperature / air pressure sensor.
 //!
 //! ## Status
-//! Tested basic temperature and pressure readouts are values I expect.
-//! Not rigorously testd in production though. 
+//!
+//! Basic temperature and pressure readouts are values I expect.
+//! Not rigorously tested in production though. 
 #![no_std]
 #![forbid(unsafe_code)]
 
