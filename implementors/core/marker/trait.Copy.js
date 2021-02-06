@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["bmp280"] = [{"text":"impl Copy for IIRFilterCoefficient","synthetic":false,"types":[]},{"text":"impl Copy for MeasurementMode","synthetic":false,"types":[]},{"text":"impl Copy for MeasurementStandbyTimeMillis","synthetic":false,"types":[]},{"text":"impl Copy for PressureOversampling","synthetic":false,"types":[]},{"text":"impl Copy for TemperatureOversampling","synthetic":false,"types":[]},{"text":"impl Copy for I2CAddress","synthetic":false,"types":[]}];
+implementors["bmp280_rs"] = [{"text":"impl Copy for IIRFilterCoefficient","synthetic":false,"types":[]},{"text":"impl Copy for MeasurementMode","synthetic":false,"types":[]},{"text":"impl Copy for MeasurementStandbyTimeMillis","synthetic":false,"types":[]},{"text":"impl Copy for PressureOversampling","synthetic":false,"types":[]},{"text":"impl Copy for TemperatureOversampling","synthetic":false,"types":[]},{"text":"impl Copy for I2CAddress","synthetic":false,"types":[]}];
 implementors["byteorder"] = [{"text":"impl Copy for BigEndian","synthetic":false,"types":[]},{"text":"impl Copy for LittleEndian","synthetic":false,"types":[]}];
 implementors["defmt"] = [{"text":"impl Copy for Str","synthetic":false,"types":[]}];
 implementors["defmt_parser"] = [{"text":"impl Copy for Level","synthetic":false,"types":[]}];

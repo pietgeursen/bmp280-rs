@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["bmp280"] = [{"text":"impl Debug for Error","synthetic":false,"types":[]}];
+implementors["bmp280_rs"] = [{"text":"impl Debug for Error","synthetic":false,"types":[]}];
 implementors["byteorder"] = [{"text":"impl Debug for BigEndian","synthetic":false,"types":[]},{"text":"impl Debug for LittleEndian","synthetic":false,"types":[]}];
 implementors["defmt_parser"] = [{"text":"impl Debug for Parameter","synthetic":false,"types":[]},{"text":"impl&lt;'f&gt; Debug for Fragment&lt;'f&gt;","synthetic":false,"types":[]},{"text":"impl Debug for Level","synthetic":false,"types":[]},{"text":"impl Debug for Type","synthetic":false,"types":[]}];
 implementors["embedded_hal"] = [{"text":"impl Debug for Direction","synthetic":false,"types":[]}];

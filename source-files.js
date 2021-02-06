@@ -1,6 +1,6 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["as_slice"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["bmp280"] = {"name":"","dirs":[{"name":"config","files":["iir_filter_coefficient.rs","measurement_mode.rs","measurement_standby_time_millis.rs","mod.rs","pressure_oversampling.rs","temperature_oversampling.rs"]},{"name":"internal","files":["mod.rs","pressure_calibration_data.rs","temperature_calibration_data.rs"]}],"files":["error.rs","i2c_address.rs","lib.rs","register.rs"]};
+sourcesIndex["bmp280_rs"] = {"name":"","dirs":[{"name":"config","files":["iir_filter_coefficient.rs","measurement_mode.rs","measurement_standby_time_millis.rs","mod.rs","pressure_oversampling.rs","temperature_oversampling.rs"]},{"name":"internal","files":["mod.rs","pressure_calibration_data.rs","temperature_calibration_data.rs"]}],"files":["error.rs","i2c_address.rs","lib.rs","register.rs"]};
 sourcesIndex["byteorder"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["defmt"] = {"name":"","files":["export.rs","impls.rs","leb.rs","lib.rs"]};
 sourcesIndex["defmt_macros"] = {"name":"","files":["lib.rs","symbol.rs"]};
