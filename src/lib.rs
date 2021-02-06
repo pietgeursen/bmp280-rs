@@ -23,24 +23,22 @@ pub use i2c_address::I2CAddress;
 use pressure_calibration_data::PressureCalibrationData;
 use temperature_calibration_data::TemperatureCalibrationData;
 
-pub struct BMP280<I2C, Mode> {
-    i2c: I2C,
-    i2c_address: u8,
+pub struct ModeNormal;
+pub struct ModeSleep;
 
+pub struct BMP280<I2C, Mode> {
+    i2c_address: u8,
     temperature_calibration_data: TemperatureCalibrationData,
     pressure_calibration_data: PressureCalibrationData,
     t_fine: i32,
     config: Config,
     mode: PhantomData<Mode>,
+    i2c: PhantomData<I2C>,
 }
-
-const DEVICE_ID: u8 = 0x58;
 
 // Magic number that must be written to the reset register to actually trigger a reset.
 const RESET_WORD: u8 = 0xB6;
-
-pub struct ModeNormal;
-pub struct ModeSleep;
+const DEVICE_ID: u8 = 0x58;
 
 impl<I2C, E, Mode> BMP280<I2C, Mode>
 where
@@ -48,20 +46,20 @@ where
     E: Debug,
 {
     /// Reset the chip into sleep mode and reconfigure it with the current config.
-    pub fn into_reset(mut self) -> Result<BMP280<I2C, ModeSleep>, Error> {
-        self.i2c
+    pub fn into_reset(self, i2c: &mut I2C) -> Result<BMP280<I2C, ModeSleep>, Error> {
+        i2c
             .write(self.i2c_address, &[Register::Reset.addr(), RESET_WORD])
             .map_err(|_| Error::WriteConfig)?;
 
         Self::_configure(
-            &mut self.i2c,
+            i2c,
             self.i2c_address,
             &self.config,
             MeasurementMode::Sleep,
         )?;
 
         Ok(BMP280 {
-            i2c: self.i2c,
+            i2c: PhantomData, 
             i2c_address: self.i2c_address,
             temperature_calibration_data: self.temperature_calibration_data,
             pressure_calibration_data: self.pressure_calibration_data,
@@ -71,30 +69,30 @@ where
         })
     }
 
-    fn _trigger_forced_measurement(&mut self) -> Result<(), Error> {
+    fn _trigger_forced_measurement(&self, i2c: &mut I2C) -> Result<(), Error> {
         Self::_configure(
-            &mut self.i2c,
+            i2c, 
             self.i2c_address,
             &self.config,
             MeasurementMode::Forced,
         )
     }
 
-    fn _into_normal_mode(mut self) -> Result<BMP280<I2C, ModeNormal>, Error> {
+    fn _into_normal_mode(self, i2c: &mut I2C) -> Result<BMP280<I2C, ModeNormal>, Error> {
         let measurement_standby_time_millis = self
             .config
             .measurement_standby_time_millis
             .context(NormalModeNeedsMeasStandbyTime)?;
 
         Self::_configure(
-            &mut self.i2c,
+            i2c,
             self.i2c_address,
             &self.config,
             MeasurementMode::Normal(measurement_standby_time_millis),
         )?;
 
         Ok(BMP280 {
-            i2c: self.i2c,
+            i2c: PhantomData, 
             i2c_address: self.i2c_address,
             temperature_calibration_data: self.temperature_calibration_data,
             pressure_calibration_data: self.pressure_calibration_data,
@@ -103,9 +101,9 @@ where
             mode: PhantomData,
         })
     }
-    fn _into_sleep_mode(mut self) -> Result<BMP280<I2C, ModeSleep>, Error> {
+    fn _into_sleep_mode(self, i2c: &mut I2C) -> Result<BMP280<I2C, ModeSleep>, Error> {
         Self::_configure(
-            &mut self.i2c,
+            i2c,
             self.i2c_address,
             &self.config,
             MeasurementMode::Sleep,
@@ -123,22 +121,22 @@ where
     }
 
     /// Read the uncompensated temperature data. 20 bit value.
-    fn _read_raw_temperature(&mut self) -> Result<u32, Error> {
+    fn _read_raw_temperature(&self, i2c: &mut I2C) -> Result<u32, Error> {
         let bytes =
-            Self::write_read_register_u32(&mut self.i2c, self.i2c_address, Register::TempMSB)?;
-        Ok(bytes >> 4)
+            Self::write_read_register_u32(i2c, self.i2c_address, Register::TempMSB)?;
+        Ok(bytes >> 12)
     }
 
     /// Read the uncompensated pressure data. 20 bit value.
-    fn _read_raw_pressure(&mut self) -> Result<u32, Error> {
+    fn _read_raw_pressure(&self, i2c: &mut I2C) -> Result<u32, Error> {
         let bytes =
-            Self::write_read_register_u32(&mut self.i2c, self.i2c_address, Register::PressMSB)?;
-        Ok(bytes >> 4)
+            Self::write_read_register_u32(i2c, self.i2c_address, Register::PressMSB)?;
+        Ok(bytes >> 12)
     }
 
     /// Read the compensated temperature.
-    fn _read_temperature(&mut self) -> Result<i32, Error> {
-        let raw_temp = self._read_raw_temperature()?;
+    fn _read_temperature(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        let raw_temp = self._read_raw_temperature(i2c)?;
 
         let (calibrated_temperature, t_fine) =
             Self::compensate_temperature(raw_temp as i32, &self.temperature_calibration_data);
@@ -150,8 +148,8 @@ where
     }
 
     /// Read the compensated pressure.
-    fn _read_pressure(&mut self) -> Result<i32, Error> {
-        let raw_pressure = self._read_raw_pressure()?;
+    fn _read_pressure(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        let raw_pressure = self._read_raw_pressure(i2c)?;
 
         let compensated_pressure = Self::compensate_pressure(
             raw_pressure as i32,
@@ -181,9 +179,9 @@ where
         i2c: &mut I2C,
         i2c_address: u8,
     ) -> Result<TemperatureCalibrationData, Error> {
-        let t1 = Self::write_read_register_u16(i2c, i2c_address, Register::CalT1Byte0)?;
-        let t2 = Self::write_read_register_i16(i2c, i2c_address, Register::CalT2Byte0)?;
-        let t3 = Self::write_read_register_i16(i2c, i2c_address, Register::CalT3Byte0)?;
+        let t1 = Self::write_read_register_u16_le(i2c, i2c_address, Register::CalT1Byte0)?;
+        let t2 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalT2Byte0)?;
+        let t3 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalT3Byte0)?;
 
         Ok(TemperatureCalibrationData { t1, t2, t3 })
     }
@@ -192,15 +190,15 @@ where
         i2c: &mut I2C,
         i2c_address: u8,
     ) -> Result<PressureCalibrationData, Error> {
-        let p1 = Self::write_read_register_u16(i2c, i2c_address, Register::CalP1Byte0)?;
-        let p2 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP2Byte0)?;
-        let p3 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP3Byte0)?;
-        let p4 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP4Byte0)?;
-        let p5 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP5Byte0)?;
-        let p6 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP6Byte0)?;
-        let p7 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP7Byte0)?;
-        let p8 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP8Byte0)?;
-        let p9 = Self::write_read_register_i16(i2c, i2c_address, Register::CalP9Byte0)?;
+        let p1 = Self::write_read_register_u16_le(i2c, i2c_address, Register::CalP1Byte0)?;
+        let p2 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP2Byte0)?;
+        let p3 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP3Byte0)?;
+        let p4 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP4Byte0)?;
+        let p5 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP5Byte0)?;
+        let p6 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP6Byte0)?;
+        let p7 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP7Byte0)?;
+        let p8 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP8Byte0)?;
+        let p9 = Self::write_read_register_i16_le(i2c, i2c_address, Register::CalP9Byte0)?;
 
         Ok(PressureCalibrationData {
             p1,
@@ -224,7 +222,7 @@ where
         Ok(output[0])
     }
 
-    fn write_read_register_u16(
+    fn write_read_register_u16_le(
         i2c: &mut I2C,
         i2c_address: u8,
         register: Register,
@@ -233,10 +231,10 @@ where
         i2c.write_read(i2c_address, &[register.addr()], &mut buffer)
             .map_err(|_| Error::ReadRegister)?;
 
-        Ok(u16::from_be_bytes(buffer))
+        Ok(u16::from_le_bytes(buffer))
     }
 
-    fn write_read_register_i16(
+    fn write_read_register_i16_le(
         i2c: &mut I2C,
         i2c_address: u8,
         register: Register,
@@ -245,7 +243,7 @@ where
         i2c.write_read(i2c_address, &[register.addr()], &mut buffer)
             .map_err(|_| Error::ReadRegister)?;
 
-        Ok(i16::from_be_bytes(buffer))
+        Ok(i16::from_le_bytes(buffer))
     }
 
     fn write_read_register_u32(
@@ -317,28 +315,28 @@ where
     E: Debug,
 {
     /// Change into sleep mode
-    pub fn into_sleep_mode(self) -> Result<BMP280<I2C, ModeSleep>, Error> {
-        Self::_into_sleep_mode(self)
+    pub fn into_sleep_mode(self, i2c: &mut I2C) -> Result<BMP280<I2C, ModeSleep>, Error> {
+        Self::_into_sleep_mode(self, i2c)
     }
 
     /// Read the uncompensated pressure data. 20 bit value.
-    pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
-        Self::_read_raw_pressure(self)
+    pub fn read_raw_pressure(&mut self, i2c: &mut I2C) -> Result<u32, Error> {
+        Self::_read_raw_pressure(self, i2c)
     }
 
     /// Read the uncompensated temperature data. 20 bit value.
-    pub fn read_raw_temperature(&mut self) -> Result<u32, Error> {
-        Self::_read_raw_temperature(self)
+    pub fn read_raw_temperature(&mut self, i2c: &mut I2C) -> Result<u32, Error> {
+        Self::_read_raw_temperature(self, i2c)
     }
 
     /// Read the compensated pressure.
-    pub fn read_pressure(&mut self) -> Result<i32, Error> {
-        Self::_read_pressure(self)
+    pub fn read_pressure(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        Self::_read_pressure(self, i2c)
     }
 
     /// Read the compensated temperature.
-    pub fn read_temperature(&mut self) -> Result<i32, Error> {
-        Self::_read_temperature(self)
+    pub fn read_temperature(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        Self::_read_temperature(self, i2c)
     }
 }
 
@@ -347,22 +345,23 @@ where
     I2C: WriteRead<Error = E> + Write<Error = E>,
     E: Debug,
 {
-    pub fn new(mut i2c: I2C, i2c_address: I2CAddress, config: Config) -> Result<Self, Error> {
+    pub fn new(i2c: &mut I2C, i2c_address: I2CAddress, config: Config) -> Result<Self, Error> {
         let i2c_address = i2c_address.addr();
 
         ensure!(
-            DEVICE_ID == Self::get_device_id(&mut i2c, i2c_address)?,
+            DEVICE_ID == Self::get_device_id(i2c, i2c_address)?,
             IncorrectDeviceId
         );
 
         let temperature_calibration_data =
-            Self::get_temperature_calibration_data(&mut i2c, i2c_address)?;
-        let pressure_calibration_data = Self::get_pressure_calibration_data(&mut i2c, i2c_address)?;
+            Self::get_temperature_calibration_data(i2c, i2c_address)?;
 
-        Self::_configure(&mut i2c, i2c_address, &config, MeasurementMode::Sleep)?;
+        let pressure_calibration_data = Self::get_pressure_calibration_data(i2c, i2c_address)?;
+
+        Self::_configure(i2c, i2c_address, &config, MeasurementMode::Sleep)?;
 
         let bmp280 = BMP280 {
-            i2c,
+            i2c: PhantomData,
             i2c_address,
             temperature_calibration_data,
             pressure_calibration_data,
@@ -377,48 +376,48 @@ where
     /// Convert into normal mode.
     ///
     /// Normal mode continuously samples.
-    pub fn into_normal_mode(self) -> Result<BMP280<I2C, ModeNormal>, Error> {
-        Self::_into_normal_mode(self)
+    pub fn into_normal_mode(self, i2c: &mut I2C) -> Result<BMP280<I2C, ModeNormal>, Error> {
+        Self::_into_normal_mode(self, i2c)
     }
 
     /// Trigger a "forced" mode single measurement.
     ///
     /// Device internally returns to sleep mode after measurement is complete and then the pressure
     /// / temperature can be read.
-    pub fn trigger_measurement(&mut self) -> Result<(), Error> {
-        Self::_trigger_forced_measurement(self)
+    pub fn trigger_measurement(&self, i2c: &mut I2C) -> Result<(), Error> {
+        Self::_trigger_forced_measurement(self, i2c)
     }
 
     /// Read the uncompensated pressure data. 20 bit value.
     ///
     /// Call `trigger_measurement` before calling this.
     /// NB You need to allow time for the measurement to complete!
-    pub fn read_raw_pressure(&mut self) -> Result<u32, Error> {
-        Self::_read_raw_pressure(self)
+    pub fn read_raw_pressure(&mut self, i2c: &mut I2C) -> Result<u32, Error> {
+        Self::_read_raw_pressure(self, i2c)
     }
 
     /// Read the uncompensated temperature data. 20 bit value.
     ///
     /// Call `trigger_measurement` before calling this.
     /// NB You need to allow time for the measurement to complete!
-    pub fn read_raw_temperature(&mut self) -> Result<u32, Error> {
-        Self::_read_raw_temperature(self)
+    pub fn read_raw_temperature(&mut self, i2c: &mut I2C) -> Result<u32, Error> {
+        Self::_read_raw_temperature(self, i2c)
     }
 
     /// Read the compensated pressure.
     ///
     /// Call `trigger_measurement` before calling this.
     /// NB You need to allow time for the measurement to complete!
-    pub fn read_pressure(&mut self) -> Result<i32, Error> {
-        Self::_read_pressure(self)
+    pub fn read_pressure(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        Self::_read_pressure(self, i2c)
     }
 
     /// Read the compensated temperature.
     ///
     /// Call `trigger_measurement` before calling this.
     /// NB You need to allow time for the measurement to complete!
-    pub fn read_temperature(&mut self) -> Result<i32, Error> {
-        Self::_read_temperature(self)
+    pub fn read_temperature(&mut self, i2c: &mut I2C) -> Result<i32, Error> {
+        Self::_read_temperature(self, i2c)
     }
 }
 
