@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FrequencyRf","Modify only in Sleep mode."],["hertz","The hertz is one cycle per second."],["kilohertz","kilohertz"],["megahertz","megahertz"]],"type":[["Frequency","`Quantity` type alias using the default base units."]]});
