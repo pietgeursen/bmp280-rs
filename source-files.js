@@ -1,5 +1,4 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["arrayvec"] = {"name":"","files":["array_string.rs","arrayvec.rs","arrayvec_impl.rs","char.rs","errors.rs","lib.rs","utils.rs"]};
 sourcesIndex["as_slice"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["byteorder"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["defmt"] = {"name":"","files":["export.rs","impls.rs","leb.rs","lib.rs"]};
@@ -7,8 +6,6 @@ sourcesIndex["defmt_macros"] = {"name":"","files":["lib.rs","symbol.rs"]};
 sourcesIndex["defmt_parser"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["doc_comment"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["embedded_hal"] = {"name":"","dirs":[{"name":"blocking","files":["delay.rs","i2c.rs","mod.rs","rng.rs","serial.rs","spi.rs"]},{"name":"digital","files":["mod.rs","v1.rs","v1_compat.rs","v2.rs","v2_compat.rs"]}],"files":["adc.rs","fmt.rs","lib.rs","prelude.rs","serial.rs","spi.rs","timer.rs","watchdog.rs"]};
-sourcesIndex["enumflags2"] = {"name":"","files":["fallible.rs","formatting.rs","lib.rs"]};
-sourcesIndex["enumflags2_derive"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["generic_array"] = {"name":"","files":["arr.rs","functional.rs","hex.rs","impls.rs","iter.rs","lib.rs","sequence.rs"]};
 sourcesIndex["hash32"] = {"name":"","files":["fnv.rs","lib.rs","murmur3.rs"]};
 sourcesIndex["heapless"] = {"name":"","dirs":[{"name":"pool","files":["cas.rs","mod.rs","singleton.rs"]},{"name":"spsc","files":["mod.rs","split.rs"]}],"files":["binary_heap.rs","histbuf.rs","i.rs","indexmap.rs","indexset.rs","lib.rs","linear_map.rs","mpmc.rs","sealed.rs","string.rs","vec.rs"]};
@@ -19,7 +16,7 @@ sourcesIndex["packed_struct"] = {"name":"","dirs":[{"name":"internal_prelude","f
 sourcesIndex["packed_struct_codegen"] = {"name":"","files":["common.rs","lib.rs","pack.rs","pack_codegen.rs","pack_codegen_docs.rs","pack_parse.rs","pack_parse_attributes.rs","primitive_enum.rs","utils.rs","utils_syn.rs"]};
 sourcesIndex["proc_macro2"] = {"name":"","files":["detection.rs","fallback.rs","lib.rs","marker.rs","parse.rs","wrapper.rs"]};
 sourcesIndex["quote"] = {"name":"","files":["ext.rs","format.rs","ident_fragment.rs","lib.rs","runtime.rs","spanned.rs","to_tokens.rs"]};
-sourcesIndex["rfm95_rs"] = {"name":"","dirs":[{"name":"internal","files":["mod.rs"]},{"name":"registers","dirs":[{"name":"common","files":["mod.rs"]},{"name":"fsk_ook","files":["bit_rate.rs","frequency_deviation.rs","frequency_rf.rs","mod.rs","op_mode.rs"]},{"name":"lora","files":["config.rs","frequency_rf.rs","irq_flags.rs","irq_masks.rs","mod.rs","modem_config1.rs","modem_config2.rs","op_mode.rs"]}],"files":["fsk_ook_registers.rs","lora_registers.rs","mod.rs"]}],"files":["error.rs","lib.rs"]};
+sourcesIndex["rfm95_rs"] = {"name":"","dirs":[{"name":"internal","files":["mod.rs"]},{"name":"registers","dirs":[{"name":"common","files":["mod.rs"]},{"name":"fsk_ook","files":["bit_rate.rs","frequency_deviation.rs","frequency_rf.rs","mod.rs","op_mode.rs"]},{"name":"lora","files":["config.rs","dio_mapping.rs","frequency_rf.rs","irq_flags.rs","irq_masks.rs","mod.rs","modem_config1.rs","modem_config2.rs","modem_status.rs","op_mode.rs"]}],"files":["fsk_ook_registers.rs","lora_registers.rs","mod.rs"]}],"files":["error.rs","lib.rs"]};
 sourcesIndex["snafu"] = {"name":"","files":["backtrace_inert.rs","lib.rs","no_std_error.rs"]};
 sourcesIndex["snafu_derive"] = {"name":"","files":["lib.rs","shared.rs"]};
 sourcesIndex["stable_deref_trait"] = {"name":"","files":["lib.rs"]};
