@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Bandwidth",""],["CodingRate",""]],"struct":[["ModemConfig1",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["I2CAddress","BMP280 I2CAddress is configured by pulling the SDO pin high or low."]]});

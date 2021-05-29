@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["config",""],["dio_mapping",""],["frequency_rf",""],["irq_flags",""],["irq_masks",""],["modem_config1",""],["modem_config2",""],["modem_status",""],["op_mode",""]]});

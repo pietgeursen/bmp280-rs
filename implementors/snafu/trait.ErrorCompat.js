@@ -1,4 +1,4 @@
 (function() {var implementors = {};
-implementors["rfm95_rs"] = [{"text":"impl&lt;SpiError:&nbsp;<a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html\" title=\"trait core::fmt::Debug\">Debug</a>&gt; <a class=\"trait\" href=\"snafu/trait.ErrorCompat.html\" title=\"trait snafu::ErrorCompat\">ErrorCompat</a> for <a class=\"enum\" href=\"rfm95_rs/error/enum.Error.html\" title=\"enum rfm95_rs::error::Error\">Error</a>&lt;SpiError&gt;","synthetic":false,"types":["rfm95_rs::error::Error"]}];
+implementors["bmp280_rs"] = [{"text":"impl <a class=\"trait\" href=\"snafu/trait.ErrorCompat.html\" title=\"trait snafu::ErrorCompat\">ErrorCompat</a> for <a class=\"enum\" href=\"bmp280_rs/error/enum.Error.html\" title=\"enum bmp280_rs::error::Error\">Error</a>","synthetic":false,"types":["bmp280_rs::error::Error"]}];
 implementors["snafu"] = [];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

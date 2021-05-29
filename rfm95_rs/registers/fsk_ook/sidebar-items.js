@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["bit_rate",""],["frequency_deviation",""],["frequency_rf",""],["op_mode",""]]});
