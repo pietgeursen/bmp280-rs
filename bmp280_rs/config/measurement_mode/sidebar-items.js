@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["MeasurementMode",""]]});
+window.SIDEBAR_ITEMS = {"enum":["MeasurementMode"]};

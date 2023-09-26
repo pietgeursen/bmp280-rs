@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Read","Blocking read"],["Write","Blocking write"],["WriteIter","Blocking write (iterator version)"],["WriteIterRead","Blocking write (iterator version) + read"],["WriteRead","Blocking write + read"]]});
+window.SIDEBAR_ITEMS = {"enum":["Operation"],"trait":["AddressMode","Read","Transactional","TransactionalIter","Write","WriteIter","WriteIterRead","WriteRead"],"type":["SevenBitAddress","TenBitAddress"]};

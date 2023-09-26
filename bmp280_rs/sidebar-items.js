@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["config",""],["error",""],["i2c_address",""],["register",""]],"struct":[["BMP280",""],["ModeNormal",""],["ModeSleep",""]]});
+window.SIDEBAR_ITEMS = {"mod":["config","error","i2c_address","register"],"struct":["BMP280","ModeNormal","ModeSleep"]};

@@ -1,22 +1,20 @@
-var N = null;var sourcesIndex = {};
-sourcesIndex["as_slice"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["bmp280_rs"] = {"name":"","dirs":[{"name":"config","files":["iir_filter_coefficient.rs","measurement_mode.rs","measurement_standby_time_millis.rs","mod.rs","pressure_oversampling.rs","temperature_oversampling.rs"]},{"name":"internal","files":["mod.rs","pressure_calibration_data.rs","temperature_calibration_data.rs"]}],"files":["error.rs","i2c_address.rs","lib.rs","register.rs"]};
-sourcesIndex["byteorder"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["defmt"] = {"name":"","files":["export.rs","impls.rs","leb.rs","lib.rs"]};
-sourcesIndex["defmt_macros"] = {"name":"","files":["lib.rs","symbol.rs"]};
-sourcesIndex["defmt_parser"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["doc_comment"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["embedded_hal"] = {"name":"","dirs":[{"name":"blocking","files":["delay.rs","i2c.rs","mod.rs","rng.rs","serial.rs","spi.rs"]},{"name":"digital","files":["mod.rs","v1.rs","v1_compat.rs","v2.rs","v2_compat.rs"]}],"files":["adc.rs","fmt.rs","lib.rs","prelude.rs","serial.rs","spi.rs","timer.rs","watchdog.rs"]};
-sourcesIndex["generic_array"] = {"name":"","files":["arr.rs","functional.rs","hex.rs","impls.rs","iter.rs","lib.rs","sequence.rs"]};
-sourcesIndex["hash32"] = {"name":"","files":["fnv.rs","lib.rs","murmur3.rs"]};
-sourcesIndex["heapless"] = {"name":"","dirs":[{"name":"pool","files":["cas.rs","mod.rs","singleton.rs"]},{"name":"spsc","files":["mod.rs","split.rs"]}],"files":["binary_heap.rs","histbuf.rs","i.rs","indexmap.rs","indexset.rs","lib.rs","linear_map.rs","mpmc.rs","sealed.rs","string.rs","vec.rs"]};
-sourcesIndex["proc_macro2"] = {"name":"","files":["detection.rs","fallback.rs","lib.rs","marker.rs","parse.rs","wrapper.rs"]};
-sourcesIndex["quote"] = {"name":"","files":["ext.rs","format.rs","ident_fragment.rs","lib.rs","runtime.rs","spanned.rs","to_tokens.rs"]};
-sourcesIndex["snafu"] = {"name":"","files":["backtrace_inert.rs","lib.rs","no_std_error.rs"]};
-sourcesIndex["snafu_derive"] = {"name":"","files":["lib.rs","shared.rs"]};
-sourcesIndex["stable_deref_trait"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["syn"] = {"name":"","dirs":[{"name":"gen","files":["clone.rs","gen_helper.rs"]}],"files":["attr.rs","await.rs","bigint.rs","buffer.rs","custom_keyword.rs","custom_punctuation.rs","data.rs","derive.rs","discouraged.rs","error.rs","export.rs","expr.rs","ext.rs","file.rs","generics.rs","group.rs","ident.rs","item.rs","lib.rs","lifetime.rs","lit.rs","lookahead.rs","mac.rs","macros.rs","op.rs","parse.rs","parse_macro_input.rs","parse_quote.rs","pat.rs","path.rs","print.rs","punctuated.rs","reserved.rs","sealed.rs","span.rs","spanned.rs","stmt.rs","thread.rs","token.rs","ty.rs","verbatim.rs","whitespace.rs"]};
-sourcesIndex["typenum"] = {"name":"","files":["array.rs","bit.rs","int.rs","lib.rs","marker_traits.rs","operator_aliases.rs","private.rs","type_operators.rs","uint.rs"]};
-sourcesIndex["unicode_xid"] = {"name":"","files":["lib.rs","tables.rs"]};
-sourcesIndex["void"] = {"name":"","files":["lib.rs"]};
+var sourcesIndex = JSON.parse('{\
+"bitflags":["",[],["lib.rs"]],\
+"bmp280_rs":["",[["config",[],["iir_filter_coefficient.rs","measurement_mode.rs","measurement_standby_time_millis.rs","mod.rs","pressure_oversampling.rs","temperature_oversampling.rs"]],["internal",[],["mod.rs","pressure_calibration_data.rs","temperature_calibration_data.rs"]]],["error.rs","i2c_address.rs","lib.rs","register.rs"]],\
+"defmt":["",[["encoding",[],["mod.rs","rzcobs.rs"]],["export",[],["integers.rs","mod.rs","traits.rs"]],["impls",[["core_",[],["alloc_.rs","array.rs","cell.rs","mod.rs","num.rs","ops.rs","ptr.rs","slice.rs"]]],["adapter.rs","arrays.rs","mod.rs","primitives.rs","tuples.rs"]]],["formatter.rs","lib.rs","traits.rs"]],\
+"defmt_macros":["",[["attributes",[],["global_logger.rs","panic_handler.rs"]],["construct",[],["symbol.rs"]],["derives",[["format",[["codegen",[],["enum_data.rs","fields.rs"]]],["codegen.rs"]]],["format.rs"]],["function_like",[["assert_binop",[],["args.rs"]],["assert_like",[],["assert.rs","unwrap.rs"]],["dbg",[],["args.rs"]],["log",[["env_filter",[],["parse.rs"]]],["args.rs","codegen.rs","env_filter.rs"]],["write",[],["args.rs"]]],["assert_binop.rs","assert_like.rs","dbg.rs","intern.rs","internp.rs","log.rs","panic_like.rs","println.rs","write.rs"]],["items",[["bitflags",[],["input.rs"]]],["bitflags.rs","timestamp.rs"]]],["attributes.rs","cargo.rs","construct.rs","consts.rs","derives.rs","function_like.rs","items.rs","lib.rs"]],\
+"defmt_parser":["",[],["display_hint.rs","lib.rs","types.rs"]],\
+"doc_comment":["",[],["lib.rs"]],\
+"embedded_hal":["",[["blocking",[],["can.rs","delay.rs","i2c.rs","mod.rs","rng.rs","serial.rs","spi.rs"]],["can",[],["id.rs","mod.rs","nb.rs"]],["digital",[],["mod.rs","v1.rs","v1_compat.rs","v2.rs","v2_compat.rs"]]],["adc.rs","fmt.rs","lib.rs","prelude.rs","serial.rs","spi.rs","timer.rs","watchdog.rs"]],\
+"proc_macro2":["",[],["detection.rs","extra.rs","fallback.rs","lib.rs","marker.rs","parse.rs","rcvec.rs","wrapper.rs"]],\
+"proc_macro_error":["",[["imp",[],["fallback.rs"]]],["diagnostic.rs","dummy.rs","lib.rs","macros.rs","sealed.rs"]],\
+"proc_macro_error_attr":["",[],["lib.rs","parse.rs","settings.rs"]],\
+"quote":["",[],["ext.rs","format.rs","ident_fragment.rs","lib.rs","runtime.rs","spanned.rs","to_tokens.rs"]],\
+"snafu":["",[],["backtrace_inert.rs","lib.rs","no_std_error.rs"]],\
+"snafu_derive":["",[],["lib.rs","shared.rs"]],\
+"thiserror":["",[],["aserror.rs","display.rs","lib.rs"]],\
+"thiserror_impl":["",[],["ast.rs","attr.rs","expand.rs","fmt.rs","generics.rs","lib.rs","prop.rs","valid.rs"]],\
+"unicode_ident":["",[],["lib.rs","tables.rs"]],\
+"void":["",[],["lib.rs"]]\
+}');
 createSourceSidebar();

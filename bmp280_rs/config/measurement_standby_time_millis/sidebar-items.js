@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["MeasurementStandbyTimeMillis",""]]});
+window.SIDEBAR_ITEMS = {"enum":["MeasurementStandbyTimeMillis"]};

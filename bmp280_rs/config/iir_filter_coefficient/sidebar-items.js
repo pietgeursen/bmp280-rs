@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["IIRFilterCoefficient",""]]});
+window.SIDEBAR_ITEMS = {"enum":["IIRFilterCoefficient"]};

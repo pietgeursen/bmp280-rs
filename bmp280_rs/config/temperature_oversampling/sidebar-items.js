@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["TemperatureOversampling",""]]});
+window.SIDEBAR_ITEMS = {"enum":["TemperatureOversampling"]};

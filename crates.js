@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["as_slice","bmp280_rs","byteorder","defmt","defmt_macros","defmt_parser","doc_comment","embedded_hal","generic_array","hash32","heapless","proc_macro2","quote","snafu","snafu_derive","stable_deref_trait","syn","typenum","unicode_xid","void"];
+window.ALL_CRATES = ["bitflags","bmp280_rs","defmt","defmt_macros","defmt_parser","doc_comment","embedded_hal","proc_macro2","proc_macro_error","proc_macro_error_attr","quote","snafu","snafu_derive","thiserror","thiserror_impl","unicode_ident","void"];
